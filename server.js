@@ -86,9 +86,9 @@ function serverHandler(request, response) {
                 filename += '/demos/MultiRTC/index.html';
             } else if (filename.indexOf('/demos/') !== -1) {
                 filename = filename.replace('/demos/', '');
-                filename += '/demos/index.html';
+                filename += '/demos/broadcast.html';
             } else {
-                filename += '/demos/index.html';
+                filename += '/demos/broadcast.html';
             }
         }
 
