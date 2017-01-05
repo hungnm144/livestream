@@ -56,11 +56,11 @@
 						<div class="container">
 							<header class="major">
 								<h2>LIVE FOR ALL</h2>
-								<p>Click "PLAY NOW" to play </p>																				
+								<p>Click "PLAY" now</p>																				
 							</header>
 
 								<div class="row uniform">
-									<div class="6u 12u(xsmall)"><a id="play-broadcast" href="javascript:;" class="button special icon fa-play">PLAY NOW</a></div>
+									<div class="6u 12u(xsmall)"><a id="play-broadcast" href="javascript:;" class="button special icon fa-play">PLAY</a></div>
 									<div class="6u 12u(xsmall)"><input type="text" name="broadcast-id" id="broadcast-id" placeholder="broadcast-id" value="hunngm07" /></div>
 								</div>
 								
@@ -69,7 +69,7 @@
 					<section id="live">
 						<div class="container" id="player">
 
-							<p><video id="video-preview" width="704" height="480" controls crossorigin loop></video></p>
+							<p><video id="video-preview" width="854" height="480" controls crossorigin loop></video></p>
 							
 							<blockquote id="show-info">
 								<p>Share for friends</p>
@@ -124,12 +124,13 @@
 		<script src="assets/js/util.js"></script>
 		<!--[if lte IE 8]><script src="assets/js/ie/respond.min.js"></script><![endif]-->
 		<script src="assets/js/main.js"></script>
-		<script src="https://hungnm-live.herokuapp.com:443/socket.io/socket.io.js"></script>			
+				
 		<script>
 			// skipping xirsys servers
 			//window.getExternalIceServers = false;
 		</script>
-		<script src="../../dist/RTCMultiConnection.min.js"></script>
+		<script src="//hungnm-live.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
+		<script src="//hungnm-live.herokuapp.com/socket.io/socket.io.js"></script>	
 		<!--<script src="dist/connect.js"></script>-->
 		<script>		
 			
@@ -150,11 +151,35 @@
 					});
 
 					// Quality broadcast			
+					var BandwidthHandler = connection.BandwidthHandler;
 					connection.bandwidth = {
 						audio: 128,
 						video: 2048
+						//screen: 300
 					};
-					
+					connection.processSdp = function(sdp) {
+						sdp = BandwidthHandler.setApplicationSpecificBandwidth(sdp, connection.bandwidth, !!connection.session.screen);
+						sdp = BandwidthHandler.setVideoBitrates(sdp, {
+							min: connection.bandwidth.video,
+							max: connection.bandwidth.video
+						});
+
+						sdp = BandwidthHandler.setOpusAttributes(sdp);
+
+						sdp = BandwidthHandler.setOpusAttributes(sdp, {
+							'stereo': 1,
+							//'sprop-stereo': 1,
+							'maxaveragebitrate': connection.bandwidth.audio * 1000 * 8,
+							'maxplaybackrate': connection.bandwidth.audio * 1000 * 8,
+							//'cbr': 1,
+							//'useinbandfec': 1,
+							// 'usedtx': 1,
+							'maxptime': 3
+						});
+
+						return sdp;
+					};
+										
 					// its mandatory in v3
 					connection.enableScalableBroadcast = true;
 
@@ -174,13 +199,28 @@
 					connection.socketMessageEvent = 'hungnm07-broadcast';
 
 					// document.getElementById('broadcast-id').value = connection.userid;
+					// ......................................................
+					// ..................Custom Messages.....................
+					// ......................................................
 
+					// this line must be defined earlier before "getSocket"
+					// or before open/join/openOrJoin
+					// connection.socketCustomEvent = 'custom-socket-event';
+
+					// to make above line highly secure;
+					// so that only users in the same channel can receive/send custom messages!
+					connection.socketCustomEvent = connection.channel;
 					// user need to connect server, so that others can reach him.
 					connection.connectSocket(function(socket) {
 						socket.on('logs', function(log) {
 							document.getElementById('logs').innerHTML = log.replace(/</g, '----').replace(/>/g, '___').replace(/----/g, '(<span style="color:red;">').replace(/___/g, '</span>)');
 						});
-
+						
+						// listen custom messages from server
+						socket.on(connection.socketCustomEvent, function(message) {
+							alert(message.sender + ' shared custom message:\n\n' + message.customMessage);
+						});
+						
 						// this event is emitted when a broadcast is already created.
 						socket.on('join-broadcaster', function(hintsToJoinBroadcast) {
 							console.log('join-broadcaster', hintsToJoinBroadcast);
@@ -320,8 +360,9 @@
 					};
 					
 					// On Stream ended action
-					connection.onstreamended = function() {
-						console.error('stream-ended', broadcastId);
+					connection.onstreamended = function(e) {
+						//e.mediaElement.parentNode.removeChild(e.mediaElement);
+						//console.error('stream-ended', broadcastId);
 						toastr["warning"]("Bạn đã ngừng xem kênh này", "Thông báo");
 						return false;
 					};
@@ -426,7 +467,7 @@
 							socket.emit('check-broadcast-presence', broadcastId, function(isBroadcastExists) {
 								if(!isBroadcastExists) {
 									// the first person (i.e. real-broadcaster) MUST set his user-id
-									toastr["error"]("Kênh này chưa được phát sóng.", "Error");
+									toastr["error"]("Kênh này chưa được phát sóng.", "Báo lỗi");
 									return false;
 									//connection.userid = broadcastId;
 								}
@@ -441,7 +482,7 @@
 								
 							});
 							// Open Video Preview
-							
+							/*
 							$.fancybox({
 								width: videoPreview.offsetHeight,
 								height: videoPreview.offsetHeight,
@@ -449,7 +490,8 @@
 								margin:0,
 								href : '#video-preview'
 							});
-							//document.getElementById('player').style.display = 'block';
+							*/
+							document.getElementById('player').style.display = 'block';
 						};
 					},
 
