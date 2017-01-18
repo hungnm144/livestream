@@ -105,22 +105,24 @@
                 <input type="text" id="broadcast-id" placeholder="broadcast-id" value="room-xyz">
                 <button id="open-or-join">Open Broadcast</button>
                 <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
-				<br/><br/>
-                <label for="audio-devices">Audio Devices:</label>
-                <select id="audio-devices" ></select>
-                <br>
-                <label for="video-devices">Video Devices:</label>
-                <select id="video-devices" ></select>
-                <br>
-                <button id="switch-camera" >Switch Webcam</button>
-                <button id="switch-microphone" >Switch Microphone</button>
-				<button id="send-custom-message">Send Custom Message</button>
+				
 			</div>
 
             <div class="make-center" id="broadcast-viewers-counter"></div>
 
 			<p><video id="video-preview" width="854" height="480" controls crossorigin loop></video></p>
-
+			<p>
+				<br/><br/>
+                <label for="audio-devices">Audio Devices:</label>
+                <select id="audio-devices"></select>				
+                <button id="switch-microphone">Switch Microphone</button>
+                <br/><br/>
+                <label for="video-devices">Video Devices:</label>
+                <select id="video-devices"></select>
+				<button id="switch-camera">Switch Webcam</button>
+                <br/><br/>
+				<button id="send-custom-message">Send Custom Message</button>
+			</p>
         </section>
 
         <blockquote>
