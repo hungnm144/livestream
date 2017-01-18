@@ -7,7 +7,7 @@
 		<!--[if lte IE 8]><script src="assets/js/ie/html5shiv.js"></script><![endif]-->
 		<link rel="stylesheet" href="assets/css/main.css" />
 		<!--[if lte IE 8]><link rel="stylesheet" href="assets/css/ie8.css" /><![endif]-->
-		<link rel="stylesheet" href="assets/css/custom.css" />				
+		<link rel="stylesheet" href="assets/css/custom.css" />		
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.min.css"/>
 		<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/fancybox/2.1.5/jquery.fancybox.min.css"/>
 		<!--
@@ -56,21 +56,16 @@
 						<div class="container">
 							<header class="major">
 								<h2>LIVE FOR ALL</h2>
-								<p>Click "PLAY" now</p>																				
+								<p>Need help? Call (+84) 98 206 16 16</p>																				
 							</header>
-
-								<div class="row uniform">
-									<div class="6u 12u(xsmall)"><a id="play-broadcast" href="javascript:;" class="button special icon fa-play">PLAY</a></div>
-									<div class="6u 12u(xsmall)"><input type="text" name="broadcast-id" id="broadcast-id" placeholder="broadcast-id" value="hunngm07" /></div>
-								</div>
-								
+							<ul class="actions">
+								<li><a id="play-broadcast" href="javascript:;" class="button special icon fa-play">PLAY NOW</a></li>
+							</ul>								
 						</div>
 					</section>
 					<section id="live">
 						<div class="container" id="player">
-
-							<p><video id="video-preview" width="854" height="480" controls crossorigin loop></video></p>
-							
+							<p><video id="video-preview" width="854" height="480" controls crossorigin loop></video></p>							
 							<blockquote id="show-info">
 								<p>Share for friends</p>
 								<ul id="room-info"></ul>										
@@ -132,19 +127,42 @@
 		<script src="//hungnm-live.herokuapp.com/dist/RTCMultiConnection.min.js"></script>
 		<script src="//hungnm-live.herokuapp.com/socket.io/socket.io.js"></script>	
 		<!--<script src="dist/connect.js"></script>-->
-		<script>		
-			
+		<script>
+sChat.init('P8yogsvf5PjsGxQ7K', {
+                ssl: true,
+                welcomeMessage: 'Hi, how can I help you?',
+                hostName: 'www.simplechat.support',
+                labels: {
+                    sendPlaceholder: 'Send the message...',
+                    headerTitle: 'Welcome on my website!'
+                }
+            });		
+			// Toast Notification config
+			toastr.options = {
+				"closeButton": true,
+				"debug": false,
+				"positionClass": "toast-top-left",
+				"onclick": null,
+				"showDuration": "5000",
+				"hideDuration": "1000",
+				"timeOut": "5000",
+				"extendedTimeOut": "1000",
+				"showEasing": "swing",
+				"hideEasing": "linear",
+				"showMethod": "fadeIn",
+				"hideMethod": "fadeOut"
+			};
 			//CHAT.init();			
 			var CONNECT = function() {
-				var videoPreview = document.getElementById('video-preview');
-				var playButton = document.getElementById('play-broadcast');
-				var broadcastDefaultId = 'hungnm07';
+				var videoPreview = document.getElementById('video-preview'),
+				playButton = document.getElementById('play-broadcast'),
+				broadcastDefaultId = 'hungnm07',
 				// recording is disabled because it is resulting for browser-crash
 				// if you enable below line, please also uncomment above "RecordRTC.js"
-				var enableRecordings = false;
-				var allRecordedBlobs = [];
+				enableRecordings = false,
+				allRecordedBlobs = [],
 				// Handle Connector
-				var handleConnector = function(){					
+				handleConnector = function(){					
 
 					var connection = new RTCMultiConnection(null, {
 						useDefaultDevices: true // if we don't need to force selection of specific devices
@@ -209,7 +227,7 @@
 
 					// to make above line highly secure;
 					// so that only users in the same channel can receive/send custom messages!
-					connection.socketCustomEvent = connection.channel;
+					connection.socketCustomEvent = 'hungnm07-message';//connection.channel;
 					// user need to connect server, so that others can reach him.
 					connection.connectSocket(function(socket) {
 						socket.on('logs', function(log) {
@@ -218,7 +236,8 @@
 						
 						// listen custom messages from server
 						socket.on(connection.socketCustomEvent, function(message) {
-							alert(message.sender + ' shared custom message:\n\n' + message.customMessage);
+							//alert(message.sender + ' shared custom message:\n\n' + message.customMessage);
+							toastr["info"](message.customMessage, message.sender + " thông báo");
 						});
 						
 						// this event is emitted when a broadcast is already created.
@@ -242,7 +261,7 @@
 							socket.emit('check-broadcast-presence', broadcastId, function(isBroadcastExists) {
 								if(!isBroadcastExists) {
 									// the first person (i.e. real-broadcaster) MUST set his user-id
-									toastr["error"]("Kênh này hiện chưa phát.", "Báo lỗi");
+									toastr["error"]("Kênh này chưa phát sóng", "Báo lỗi");
 									return false;
 									//connection.userid = broadcastId;
 								}
@@ -260,7 +279,7 @@
 							// location.reload();
 							console.error('broadcast-stopped', broadcastId);
 							//alert('This broadcast has been stopped.');
-							toastr["error"]("Kênh này hiện đã dừng phát.", "Báo lỗi");
+							toastr["error"]("Kênh này đã dừng phát", "Báo lỗi");
 						});
 
 						// this event is emitted when a broadcast is absent.
@@ -446,7 +465,7 @@
 							var broadcastId = broadcastDefaultId;
 							if (broadcastId.replace(/^\s+|\s+$/g, '').length <= 0) {
 								//alert('Please enter broadcast-id');
-								toastr["error"]("Không tìm thấy mã Kênh", "Báo lỗi");  
+								toastr["error"]("Không tìm thấy mã kênh", "Báo lỗi");  
 								//document.getElementById('broadcast-id').focus();
 								return;
 							}
@@ -467,7 +486,7 @@
 							socket.emit('check-broadcast-presence', broadcastId, function(isBroadcastExists) {
 								if(!isBroadcastExists) {
 									// the first person (i.e. real-broadcaster) MUST set his user-id
-									toastr["error"]("Kênh này chưa được phát sóng.", "Báo lỗi");
+									toastr["error"]("Kênh này chưa phát sóng", "Báo lỗi");
 									return false;
 									//connection.userid = broadcastId;
 								}

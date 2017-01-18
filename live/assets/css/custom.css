@@ -1,8 +1,6 @@
 /** CUSTOM.CSS */
 #player,
-#logs,
-#show-info,
-#broadcast-id
+#show-info
 {
 	display:none
 }
