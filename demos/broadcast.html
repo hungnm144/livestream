@@ -107,13 +107,13 @@
                 <div id="room-urls" style="text-align: center;display: none;background: #F1EDED;margin: 15px -10px;border: 1px solid rgb(189, 189, 189);border-left: 0;border-right: 0;"></div>
 				<br/><br/>
                 <label for="audio-devices">Audio Devices:</label>
-                <select id="audio-devices" disabled></select>
+                <select id="audio-devices" ></select>
                 <br>
                 <label for="video-devices">Video Devices:</label>
-                <select id="video-devices" disabled></select>
+                <select id="video-devices" ></select>
                 <br>
-                <button id="switch-camera" disabled>Switch Webcam</button>
-                <button id="switch-microphone" disabled>Switch Microphone</button>
+                <button id="switch-camera" >Switch Webcam</button>
+                <button id="switch-microphone" >Switch Microphone</button>
 				<button id="send-custom-message">Send Custom Message</button>
 			</div>
 
@@ -477,7 +477,6 @@
                 connection.attachStreams.forEach(function(stream) {
                     stream.getAudioTracks().forEach(function(track) {
                         stream.removeTrack(track);
-
                         if(track.stop) {
                             track.stop();
                         }
@@ -485,7 +484,7 @@
                 });
 
                 connection.mediaConstraints.audio.optional = [{
-                    sourceId: videoSourceId
+                    sourceId: audioSourceId
                 }];
 
                 connection.captureUserMedia();
